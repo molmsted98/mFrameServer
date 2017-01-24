@@ -1,0 +1,165 @@
+extends ../layout
+
+block content
+    .page-header
+        h2
+            i.fa.fa-upload
+            | Image Upload
+    h3 Image Upload Form
+    .row
+        .col-sm-6
+            script.
+                function check()
+                {
+                    var type = document.getElementsByName("type")[0].value
+                    if (type == 'Wall' || type == 'Ceiling' || type == 'Floor')
+                    {
+                        document.getElementById("warning").innerHTML="Warning: These images will be fit to squares. Images with large resolution ratios may not appear as you want them to.";
+                    }
+                    else if (type == 'Frame')
+                    {
+                        document.getElementById("warning").innerHTML="Only the edges of this image will be displayed, so solid colors/textures are advised.";
+                    }
+                    else
+                    {
+                        document.getElementById("warning").innerHTML="";
+                    }
+                    if (type == 'Wall' || type == 'Ceiling' || type == 'Floor' || type == 'Frame')
+                    {
+                        document.getElementById("warn2").innerHTML="If you have a previous version of this image, it will be overwritten.";
+                    }
+                    else
+                    {
+                        document.getElementById("warn2").innerHTML=""
+                    }
+                }
+            form(role='form', enctype='multipart/form-data', method='POST')
+                .form-group
+                    label.control-label File Input
+                    input(type='file', name='myFile')
+                    input(type='hidden', name='selected')
+                    select(name='type' onChange='check();')
+                        option(value='Post') Post
+                        option(value='Wall') Wall
+                        option(value='Ceiling') Ceiling
+                        option(value='Floor') Floor
+                        option(value='Frame') Frame
+                button.btn.btn-primary(type='submit', id='subButton') Submit
+            p(id='warning')
+            p(id='warn2')
+            p(id='postWarn')
+            if (filenames.length >= 8)
+                p() You have too many posts! Select an image to replace:
+            else
+                p() Current Posts:
+            each path, index in filenames
+                img(id='a' + index, class='upImg', src='/uploads/' + path, height='150' width='150' style={margin: '10px'})
+
+            script.
+                var pics = document.getElementsByClassName("upImg")
+
+                var selected = pics[0]
+
+                document.getElementsByName("selected")[0].value = -1;
+
+                var select0 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 0;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select1 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 1;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select2 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 2;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select3 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 3;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select4 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 4;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select5 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 5;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select6 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 6;
+                    document.getElementById("subButton").disabled = false;
+                }
+                var select7 = function()
+                {
+                    selected.style.border = "thick none #FF00FF"
+                    this.style.border = "thick solid #0000FF"
+                    selected = this
+                    document.getElementsByName("selected")[0].value = 7;
+                    document.getElementById("subButton").disabled = false;
+                }
+                
+
+                for (var i = 0; i < pics.length; i++)
+                {
+                    switch(i)
+                    {
+                        case 0:
+                            pics[i].addEventListener('click', select0)
+                            break
+                        case 1:
+                            pics[i].addEventListener('click', select1)
+                            break
+                        case 2:
+                            pics[i].addEventListener('click', select2)
+                            break
+                        case 3:
+                            pics[i].addEventListener('click', select3)
+                            break
+                        case 4:
+                            pics[i].addEventListener('click', select4)
+                            break
+                        case 5:
+                            pics[i].addEventListener('click', select5)
+                            break
+                        case 6:
+                            pics[i].addEventListener('click', select6)
+                            break
+                        case 7:
+                            pics[i].addEventListener('click', select7)
+                            break
+                    }
+                }
+
+                if (pics.length >= 8 && document.getElementsByName("selected")[0].value < 0)
+                {
+                    document.getElementById("subButton").disabled = true;
+                }
