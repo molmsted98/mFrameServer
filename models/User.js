@@ -32,7 +32,8 @@ const userSchema = new mongoose.Schema({
         picture: String
     },
 
-    following: [String]
+    following: [String],
+    roomIds: [String]
 }, {
     timestamps: true
 });
@@ -92,7 +93,16 @@ userSchema.methods.unfollowUser = function(userId) {
     const user = this;
     user.following.remove(userId);
     user.save();
-}
+};
+
+/**
+ * Helper method for adding a new room
+ */
+userSchema.methods.addRoom = function(roomId) {
+    const user = this;
+    user.roomIds.add(roomId);
+    user.save();
+};
 
 /**
  * Helper method for getting user's gravatar.

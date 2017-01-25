@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 //Types are wall, ceiling, floor, frame
 const styleSchema = new mongoose.Schema({
-    id: String,
+    roomId: String,
     fileName: String,
     type: String
 }, {

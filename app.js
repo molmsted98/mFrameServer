@@ -38,6 +38,8 @@ const userController = require('./controllers/user');
 const demoController = require('./controllers/demo');
 const uploadController = require('./controllers/upload');
 const apiController = require('./controllers/api');
+const tagController = require('./controllers/tag');
+const roomController = require('./controllers/room');
 
 /**
  * API keys and Passport configuration.
@@ -94,14 +96,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
-
+/*
 app.use((req, res, next) => {
     if (req.path === '/api/upload' || req.path === '/upload' || req.path === '/' || req.path === '/:userId') {
         next();
     } else {
         lusca.csrf()(req, res, next);
     }
-});
+});*/
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
 app.use((req, res, next) => {
@@ -157,12 +159,27 @@ app.get('/:userId/followers', userController.showFollowers);
 /**
  * API routes.
  */
-app.get('/api/users/:userId/posts', userController.showPosts);
-app.get('/api/users/:userId/post/:postId', userController.getPost);
-app.get('/api/users/:userId/following', apiController.getFollowing);
-app.get('/api/users/:userId/followers', apiController.getFollowers);
+app.get('/api', apiController.index);
+app.get('/api/users', userController.index);
+app.get('/api/users/:userId', userController.getProfile);
+app.get('/api/users/:userId/rooms', userController.getRooms);
+app.get('/api/users/:userId/following', userController.getFollowing);
+app.get('/api/users/:userId/followers', userController.getFollowers);
 app.post('/api/users/:userId/follow', passportConfig.isAuthenticated, userController.followUser);
 app.post('/api/users/:userId/unfollow', passportConfig.isAuthenticated, userController.unfollowUser);
+app.get('/api/rooms', roomController.index);
+app.get('/api/rooms/:roomId', roomController.getInfo);
+app.get('/api/rooms/:roomId/posts', roomController.getPostInfo);
+app.post('/api/rooms/:roomId/posts/makePost', roomController.makePost);
+app.get('/api/rooms/:roomId/posts/:postId', roomController.getPost);
+//app.post('/api/rooms/makeRoom/:roomName', passportConfig.isAuthenticated, roomController.makeRoom);
+app.post('/api/rooms/makeRoom/:roomName', roomController.makeRoom);
+//app.post('/api/rooms/:roomId/tagRoom/:tagId', passportConfig.isAuthenticated, roomController.tagRoom);
+app.post('/api/rooms/:roomId/tagRoom/:tagId', roomController.tagRoom);
+app.get('/api/tags', tagController.index);
+app.get('/api/tags/:tag', tagController.getRooms);
+app.post('/api/tags/makeTag/:tagName', tagController.makeTag);
+app.post('/api/tags/:tagId/setDescription', tagController.setDescription);
 
 /**
  * OAuth authentication routes. (Sign in)

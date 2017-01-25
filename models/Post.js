@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-    id: String,
+    roomId: String,
     fileName: String,
     coordinates: [Number],
     fileType: String
@@ -11,7 +11,7 @@ const postSchema = new mongoose.Schema({
 
 postSchema.methods.changeCoords = function(newCoords) {
     this.coordinates = newCoords;
-}
+};
 
 const Post = mongoose.model('Post', postSchema);
 

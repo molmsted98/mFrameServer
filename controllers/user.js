@@ -470,10 +470,55 @@ exports.postForgot = (req, res, next) => {
 };
 
 /***
+ * GET /:userId/following
+ * Returns a list of the usernames of users' following.
+ */
+exports.showFollowing = (req, res, next) => {
+    theUrl = "http://mfra.me/api/users/" + req.params.userId + "/following";
+
+    request({
+        url: theUrl,
+        json: true
+    }, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            res.render('account/following', {
+                title: 'Following',
+                "following": body
+            });
+        } else {
+            console.log(error);
+        }
+    });
+};
+
+/***
+ * GET /:userId/followers
+ */
+exports.showFollowers = (req, res, next) => {
+    theUrl = "http://mfra.me/api/users/" + req.params.userId + "/followers";
+
+    request({
+        url: theUrl,
+        json: true
+    }, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            res.render('account/followers', {
+                title: 'Followers',
+                "followers": body
+            });
+        } else {
+            console.log(error);
+        }
+    });
+};
+
+
+/***
  * GET /:userId
  * Gets all images with userId.
  * Opens up the room, sends a ton of data.
  */
+ /*
 exports.showPosts = (req, res, next) => {
     const userId = req.params.userId;
     var following = false;
@@ -608,25 +653,84 @@ exports.showPosts = (req, res, next) => {
             });
         }
     });
+};*/
+
+/***
+  * USER API SECTION
+  */
+
+/***
+ * GET /api/users
+ * ???
+ */
+exports.index = (req, res, next) => {
+
 };
 
 /***
- * GET /userProfile/:userId
- * Should be removed, unless we implement profile pages.
+ * GET /api/users/:userId
+ * Return the data to load profile, including room ids
  */
 exports.getProfile = (req, res, next) => {
     const id = req.params.userId;
-    const currentUser = req.user;
     User.findOne({
         _id: id
-    }).exec((err, auser) => {
+    }).exec((err, user) => {
         if (err) {
             return next(err);
         }
-        res.render('account/publicProfile', {
-            title: 'Profile',
-            "auser": auser,
-            "currentUser": currentUser
+        res.setHeader('Content-Type', 'application/json');
+        res.json(user);
+    });
+};
+
+/***
+ * GET /api/users/:userId/rooms
+ * Returns all roomIds that this user has
+ */
+exports.getRooms = (req, res, next) => {
+    User.findOne({
+        _id: req.params.userId
+    }).lean().exec((err, user) => {
+        let roomIds = user.roomIds;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(roomIds);
+    });
+};
+
+/***
+ * GET /api/users/:userId/following
+ * Returns a list of the usernames of users' following.
+ */
+exports.getFollowing = (req, res, next) => {
+    User.findOne({
+        _id: req.params.userId
+    }).lean().exec((err, user) => {
+        followingIds = user.following;
+        User.find({
+            _id: {
+                $in: followingIds
+            }
+        }).exec((err, following) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.json(following);
+        });
+    });
+};
+
+/***
+ * GET /api/users/:userId/followers
+ * Return a list of the usernames that are following the user with userId
+ */
+exports.getFollowers = (req, res, next) => {
+    User.findOne({
+        _id: req.params.userId
+    }).exec((err, theUser) => {
+        User.find({
+            following: theUser._id
+        }).exec((err, followers) => {
+            res.setHeader('Content-Type', 'application/json');
+            res.json(followers);
         });
     });
 };
@@ -636,6 +740,7 @@ exports.getProfile = (req, res, next) => {
  * Follows the user with userId.
  */
 exports.followUser = (req, res, next) => {
+    //Replace the way this finds out who is currently logged in
     User.findOne({
         _id: req.user.id
     }).exec((err, user) => {
@@ -667,99 +772,4 @@ exports.unfollowUser = (req, res, next) => {
         msg: 'User was unfollowed successfully.'
     });
     return res.redirect('/' + req.params.userId);
-};
-
-/***
- * GET /:userId/following
- * Returns a list of the usernames of users' following.
- */
-exports.showFollowing = (req, res, next) => {
-    theUrl = "http://mfra.me/api/users/" + req.params.userId + "/following";
-
-    request({
-        url: theUrl,
-        json: true
-    }, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            res.render('account/following', {
-                title: 'Following',
-                "following": body
-            });
-        } else {
-            console.log(error);
-        }
-    });
-};
-
-/***
- * GET /:userId/followers
- */
-exports.showFollowers = (req, res, next) => {
-    theUrl = "http://mfra.me/api/users/" + req.params.userId + "/followers";
-
-    request({
-        url: theUrl,
-        json: true
-    }, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            res.render('account/followers', {
-                title: 'Followers',
-                "followers": body
-            });
-        } else {
-            console.log(error);
-        }
-    });
-};
-
-/***
- * GET /api/:userId/post/:postId
- * Returns a single post for the user
- */
-exports.getPost = (req, res, next) => {
-    //Get the requested parameters
-    let userId = req.params.userId;
-    let postId = req.params.postId;
-
-    //Verify that the user exists in the database
-    User.findOne({
-        _id: userId
-    }).lean().exec((err, targetUser) => {
-        //Get all of the posts from the user
-        Post.find({
-            id: userId
-        }).lean().exec((err, posts) => {
-            //Extract all of the data about the posts
-            paths = [];
-            coords = [];
-            strCoords = [];
-            fileTypes = [];
-            for (var i = 0; i < posts.length; i++) {
-                var object = posts[i];
-                paths.push(
-                    object.fileName
-                );
-                coords.push(
-                    object.coordinates
-                );
-                fileTypes.push(
-                    object.fileType
-                );
-            }
-            //Convert the coordinates to a string. Might not be necessary now
-            for (var i = 0; i < posts.length; i++) {
-                strCoords[i] = coords[i][0] + ' ' + coords[i][1] + ' ' + coords[i][2]
-            }
-            //Verify that the user actually has a post for this id
-            if(postId > paths.length - 1)
-            {
-                res.sendFile(path.resolve(__dirname + '/../public/honda.jpg'));
-            }
-            else
-            {
-                let filename = paths[postId];
-                res.sendFile(path.resolve(__dirname + '/../public/uploads/' + filename));
-            }
-        });
-    });
 };
