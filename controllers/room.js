@@ -7,7 +7,9 @@ const Post = require('../models/Post');
  * ???
  */
 exports.index = (req, res, next) => {
-
+    Room.find().lean().exec((err, rooms) => {
+        res.send(rooms);
+    });
 };
 
 /***

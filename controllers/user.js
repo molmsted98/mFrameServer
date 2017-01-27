@@ -664,7 +664,9 @@ exports.showPosts = (req, res, next) => {
  * ???
  */
 exports.index = (req, res, next) => {
-
+    User.find().exec((err, users) => {
+        res.json(users);
+    });
 };
 
 /***

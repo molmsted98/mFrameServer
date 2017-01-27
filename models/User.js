@@ -100,7 +100,7 @@ userSchema.methods.unfollowUser = function(userId) {
  */
 userSchema.methods.addRoom = function(roomId) {
     const user = this;
-    user.roomIds.add(roomId);
+    user.roomIds.push(roomId);
     user.save();
 };
 
